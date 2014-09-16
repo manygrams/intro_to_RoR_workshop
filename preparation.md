@@ -23,4 +23,4 @@ bundle exec rails server
 
 If you open your favourite browser and go to `http://localhost:3000`, you should see the default Rails page!
 
-If you have any problems setting up, feel free to contact me for help :)
+If you have any problems setting up, feel free to [contact me](https://twitter.com/nicolas__evans) for help :)
