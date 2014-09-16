@@ -1,11 +1,6 @@
 class QuestionsController < ApplicationController
-  before_action :set_question, only: [:show, :edit, :update, :destroy]
-  before_action :set_event, only: [:new, :edit, :create, :update, :destroy]
-
-  # GET /questions
-  def index
-    @questions = Question.all
-  end
+  before_action :set_question, only: :show
+  before_action :set_event, only: [:new, :create]
 
   # GET /questions/1
   def show
@@ -17,10 +12,6 @@ class QuestionsController < ApplicationController
     @question = Question.new
   end
 
-  # GET /questions/1/edit
-  def edit
-  end
-
   # POST /questions
   def create
     @question = Question.new(question_params)
@@ -30,21 +21,6 @@ class QuestionsController < ApplicationController
     else
       render :new
     end
-  end
-
-  # PATCH/PUT /questions/1
-  def update
-    if @question.update(question_params)
-      redirect_to @event, notice: 'Question was successfully updated.'
-    else
-      render :edit
-    end
-  end
-
-  # DELETE /questions/1
-  def destroy
-    @question.destroy
-    redirect_to @event, notice: 'Question was successfully destroyed.'
   end
 
   private

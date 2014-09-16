@@ -85,7 +85,7 @@ end
 
 Add the following line after the existing `before_action`:
 ```ruby
-before_action :set_event, only: [:new, :edit, :create, :update, :destroy]
+before_action :set_event, only: [:new, :create]
 ```
 
 Then add a new method definition to the private methods:
@@ -121,3 +121,102 @@ Open up `app/controllers/events_controller.rb` and add the following to the `sho
 ```
 
 Now, go to your root page, create an event, and create a couple test questions for that event. They'll show up - magic!!
+
+# Cleanup
+
+At this point, we should clean up our application. We don't want people to be able to change or delete events once they are created, so we'll remove the edit, update, and destroy actions on the EventsController and disable the routes.
+
+To remove the actions from the EventsController, you simply delete the functions. Remove the following code from `app/controllers/events_controller.rb`:
+```ruby
+# GET /events/1/edit
+def edit
+end
+...
+# PATCH/PUT /events/1
+def update
+  if @event.update(event_params)
+    redirect_to @event, notice: 'Event was successfully updated.'
+  else
+    render :edit
+  end
+end
+...
+# DELETE /events/1
+def destroy
+  @event.destroy
+  redirect_to events_url, notice: 'Event was successfully destroyed.'
+end
+```
+
+Modify the `before_action` callback to look like this:
+```ruby
+before_action :set_event, only: :show
+```
+
+In `config/routes.rb`, modify your `resources :events do` line to look like this:
+```ruby
+resources :events, only: [:index, :show, :new, :create] do
+```
+
+Since we removed the edit / delete route, our app will no longer know about the corresponding paths, so we'll have to remove the references from our index and show pages. In `app/views/events/index.html.erb`, Delete the lines that say:
+```erb
+<td><%= link_to 'Edit', edit_event_path(event) %></td>
+<td><%= link_to 'Destroy', event, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+```
+
+In `app/views/events/show.html.erb`, delete the line that says:
+```erb
+<%= link_to 'Edit', edit_event_path(@event) %> |
+```
+
+We also don't want people to be able to change or delete questions, so we should remove these actions too. As before, we can simply delete the method definitions from the QuestionsController and modify the routing accordingly. We also don't have a use for the QuestionsController#index action, so we can safely delete that too.
+
+Delete the folllowing code from `app/controllers/questions_controller.rb`:
+```ruby
+# GET /questions
+def index
+  @questions = Question.all
+end
+...
+# GET /questions/1/edit
+def edit
+end
+...
+# PATCH/PUT /questions/1
+def update
+  if @question.update(question_params)
+    redirect_to @event, notice: 'Question was successfully updated.'
+  else
+    render :edit
+  end
+end
+...
+# DELETE /questions/1
+def destroy
+  @question.destroy
+  redirect_to @event, notice: 'Question was successfully destroyed.'
+end
+```
+
+Modify the `before_action :set_question` line to look like this:
+```ruby
+before_action :set_question, only: :show
+```
+
+Again, modify the corresponding `config/routes.rb` line:
+```ruby
+resources :questions, only: [:show, :new, :create]
+```
+
+In our `app/views/questions/new.html.erb`, we have a reference to the `event_questions_path(@event)`, which no longer exists (because we deleted our QuestionsController#index path), so we'll have to change that line to:
+```erb
+<%= link_to 'Back', event_path(@event) %>
+```
+
+Finally, we can delete the views for all of these actions to keep the codebase simple. Delete the following files:
+- `app/views/events/edit.html.erb`
+- `app/views/questions/index.html.erb`
+- `app/views/questions/edit.html.erb`
+- `app/views/questions/show.html.erb`
+
+Now our app's code is much cleaner, and users can't modify existing events / questions. Now, we want to make our users have to login before they ask questions or create events.
