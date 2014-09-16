@@ -5,5 +5,14 @@
   <%= @event.name %>
 </p>
 
+<ul>
+  <% @questions.each do |question| %>
+    <li>
+      Question: <%= question.question %>
+    </li>
+  <% end %>
+</ul>
+
+<%= link_to 'Ask New Question', new_event_question_path(@event) %> |
 <%= link_to 'Edit', edit_event_path(@event) %> |
 <%= link_to 'Back', events_path %>
