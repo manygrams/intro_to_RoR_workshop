@@ -1,5 +1,7 @@
 # Events
 
+## Generate Event scaffolding
+
 ```
 bundle exec rake db:migrate
 bundle exec rake db:setup
@@ -17,10 +19,14 @@ your shiny new event on the list page.
 
 # Questions
 
+## Generate Question scaffolding
+
 ```
 bundle exec rails generate scaffold Question question:string event_id:integer
 bundle exec rake db:migrate
 ```
+
+## Making questions belong to events
 
 Since we're being RESTful, we want the questions to belong to an event. To do this, add the following to `app/models/question.rb`:
 ```
@@ -90,6 +96,8 @@ end
 ```
 
 Finally, modify all of the controllers calls to `redirect_to` to redirect to `@event`. You can do this by changing the first argument.
+
+## Add link to ask new question on an event's page, and show all questions
 
 Now, add the the following before the edit link in the `app/views/events/show.html.erb` file:
 ```
