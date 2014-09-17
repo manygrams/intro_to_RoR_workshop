@@ -237,7 +237,7 @@ before_action :authenticate_user!, only: [:new, :create]
 
 Now, you will be forced to sign-in / log-in before creating events or questions.
 
-To add a sign-out link, open up `app/views/layout/application.html.erb` and add the following below the line with <%= yield %>:
+To add a sign-out link, open up `app/views/layout/application.html.erb` and add the following below the line with `<%= yield %>`:
 ```erb
 <% if user_signed_in? %>
   <p>
