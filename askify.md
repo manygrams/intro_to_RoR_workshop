@@ -220,3 +220,28 @@ Finally, we can delete the views for all of these actions to keep the codebase s
 - `app/views/questions/show.html.erb`
 
 Now our app's code is much cleaner, and users can't modify existing events / questions. Now, we want to make our users have to login before they ask questions or create events.
+
+# Adding Users
+
+Run the following commands in your terminal:
+```bash
+rails generate devise:install
+rails generate devise User
+bundle exec rake db:migrate
+```
+
+Cool. We have users now. What good is it doing? Well, not too much. We want force users to be logged in before they ask questions or create events. To do this, add the following to your `app/controllers/events_controller.rb` and `app/controllers/questions_controller.rb`:
+```ruby
+before_action :authenticate_user!, only: [:new, :create]
+```
+
+Now, you will be forced to sign-in / log-in before creating events or questions.
+
+To add a sign-out link, open up `app/views/layout/application.html.erb` and add the following below the line with <%= yield %>:
+```erb
+<% if user_signed_in? %>
+  <p>
+    <%= link_to "Sign Out", destroy_user_session_path, method: :delete %>
+  </p>
+<% end %>
+```

@@ -1,6 +1,7 @@
 class QuestionsController < ApplicationController
   before_action :set_question, only: :show
   before_action :set_event, only: [:new, :create]
+  before_action :authenticate_user!, only: [:new, :create]
 
   # GET /questions/1
   def show
