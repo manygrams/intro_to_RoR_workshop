@@ -16,7 +16,7 @@ cd askify
 
 This will create a new project in your code workspace called `askify`, create the Rails project skeleton, and install all of the required [gems](http://en.wikipedia.org/wiki/RubyGems).
 
-Use your favourite editor to change the gemfile to look exactly like [this](https://github.com/manygrams/intro_to_RoR_workshop/blob/85d827399cbfbd6606c1de5d27832f9629f25bd8/askify/Gemfile), and run the following command:
+Use your favourite editor to change the `Gemfile` in the root directly to look exactly like [this](https://github.com/manygrams/intro_to_RoR_workshop/blob/85d827399cbfbd6606c1de5d27832f9629f25bd8/askify/Gemfile), and run the following command:
 ```
 bundle install
 ```
