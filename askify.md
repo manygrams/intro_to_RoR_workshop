@@ -297,3 +297,73 @@ We want to ensure that questions are signed by the user that creates them. Activ
   </li>
 <% end %>
 ```
+
+# Adding Voting
+
+To keep it simple, we'll only allow users to create votes on questions. We won't build the functionality to allow users to change or delete votes.
+
+Run the following in your terminal:
+```bash
+bundle exec rails generate model Vote user_id:integer question_id:integer score:string
+bundle exec rails generate controller Votes upvote downvote
+bundle exec rake db:migrate
+```
+
+We want to tell ActiveRecord about the association between our Vote, User, and Question model, so we open up `app/models/vote.rb` and add:
+```ruby
+belongs_to :user
+belongs_to :question
+```
+
+Add the following to `app/models/question.rb` and `app/models/user.rb`:
+```ruby
+has_many :votes
+```
+
+Open up `app/controllers/votes_controller.rb` and make the file look like:
+```ruby
+class VotesController < ApplicationController
+  before_action :load_question, :create_vote
+
+  def upvote
+  end
+
+  def downvote
+  end
+
+  private
+
+  def load_question
+    @question = Question.find(params[:id])
+  end
+
+  def create_vote
+    @question.votes.create!(user_id: current_user.id, score: action_name)
+    redirect_to @question.event, notice: "#{action_name} created!"
+  end
+end
+```
+
+Open up `config/routes.rb`, and delete the following lines:
+```ruby
+get 'votes/upvote'
+get 'votes/downvote'
+```
+
+Now, modify the `resources :questions` part to look like this:
+```ruby
+resources :questions, only: [:show, :new, :create] do
+  member do
+    get 'upvote', controller: 'votes'
+    get 'downvote', controller: 'votes'
+  end
+end
+```
+
+Finally, to allow users to vote on questions, we need to add links to our new routes on the event page. Open up `app/views/events/show.html.erb` and add the following code after the `Asked by: ...` line:
+```erb
+<%= link_to "Upvote", upvote_event_question_path(@event, question) %>
+<%= link_to "Downvote", downvote_event_question_path(@event, question) %>
+```
+
+You can now upvote and downvote questions from the event page! Give it a try. Notice that we are trusting our users to not create more than one vote on a question. This might be a bit of a leap of faith! If you're not trusting, you can add validations.
