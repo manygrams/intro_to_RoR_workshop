@@ -14,7 +14,14 @@ class VotesController < ApplicationController
   end
 
   def create_vote
-    @question.votes.create!(user_id: current_user.id, score: action_name)
-    redirect_to @question.event, notice: "#{action_name} created!"
+    @vote = @question.votes.new(user_id: current_user.id, score: action_name)
+
+    if @vote.save
+      flash[:notice] = "#{action_name} created!"
+    else
+      flash[:notice] = "Could not save vote: #{@vote.errors.full_messages.join(",")}"
+    end
+
+    redirect_to @question.event
   end
 end

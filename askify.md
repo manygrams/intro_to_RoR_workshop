@@ -367,3 +367,49 @@ Finally, to allow users to vote on questions, we need to add links to our new ro
 ```
 
 You can now upvote and downvote questions from the event page! Give it a try. Notice that we are trusting our users to not create more than one vote on a question. This might be a bit of a leap of faith! If you're not trusting, you can add validations.
+
+
+
+# Validations
+
+I'll cover ActiveRecord validations, but you should really add database-level validations too. ActiveRecord validations are good for integrating tightly with your Rails app and can have more complex logic, but the database-level validations are the only way of guaranteeing the validations are run.
+
+## Ensuring a user can only vote once
+
+Open up `app/models/vote.rb` and add the following:
+```ruby
+validates_uniqueness_of :user, scope: :question, message: "can only vote once per question!"
+```
+
+There. Now users _should_ only be able to vote once. However, if you run your web application in more than one process, this is not the case.
+
+Instead of an error page, we probably want to add a nice message if a user tries to vote more than once per question. To do this, open up `app/controllers/votes_controller.rb` and change the `create_vote` method to look like this:
+```ruby
+def create_vote
+  @vote = @question.votes.new(user_id: current_user.id, score: action_name)
+
+  if @vote.save
+    flash[:notice] = "#{action_name} created!"
+  else
+    flash[:notice] = "Could not save vote: #{@vote.errors.full_messages.join(",")}"
+  end
+
+  redirect_to @question.event
+end
+```
+
+Now we have a nice error message.
+
+## Ensuring presence of a field
+
+We have our Event and Question models that allow user input (event name and question to ask), so we should validate the presence of these fields. To do this, open up `app/models/event.rb` and add the following:
+```ruby
+validates_presence_of :name
+```
+
+Then open up `app/models/question.rb` and add:
+```ruby
+validates_presence_of :question
+```
+
+Now, if you try to create an event / question without their respective fields, you'll get a user-friendly error message.
