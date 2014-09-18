@@ -12,8 +12,8 @@
       	Question: "<%= question.question %>"
       </p>
       Asked by: <%= question.user.email %>
-      <%= link_to "Upvote", upvote_event_question_path(@event, question) %>
-      <%= link_to "Downvote", downvote_event_question_path(@event, question) %>
+      <%= link_to "Upvote (#{question.upvotes})", upvote_event_question_path(@event, question) %>
+      <%= link_to "Downvote (#{question.downvotes})", downvote_event_question_path(@event, question) %>
     </li>
   <% end %>
 </ul>

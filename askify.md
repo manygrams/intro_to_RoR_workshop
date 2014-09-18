@@ -366,9 +366,36 @@ Finally, to allow users to vote on questions, we need to add links to our new ro
 <%= link_to "Downvote", downvote_event_question_path(@event, question) %>
 ```
 
-You can now upvote and downvote questions from the event page! Give it a try. Notice that we are trusting our users to not create more than one vote on a question. This might be a bit of a leap of faith! If you're not trusting, you can add validations.
+You can now upvote and downvote questions from the event page! Give it a try. Notice that we are trusting our users to not create more than one vote on a question. This might be a bit of a leap of faith! If you're not trusting, you can add validations, which I cover later.
 
+## Showing vote counters
 
+We want to see how many up/down votes there are on each question.
+
+Open up `app/models/vote.rb` and add the following lines:
+```ruby
+scope :upvotes, ->{ where(score: "upvote") }
+scope :downvotes, ->{ where(score: "downvote") }
+```
+
+This allows us to do stuff like `@question.votes.downvotes`, where we would usually have to do `@questions.votes.where(score: "upvote")`. In `app/models/question.rb`, add the following methods:
+```ruby
+def upvotes
+  votes.upvotes.count
+end
+
+def downvotes
+  votes.downvotes.count
+end
+```
+
+Finally, open up `app/views/events/show.html.erb` and modify the upvote/downvote links to look like this:
+```erb
+<%= link_to "Upvote (#{question.upvotes})", upvote_event_question_path(@event, question) %>
+<%= link_to "Downvote (#{question.downvotes})", downvote_event_question_path(@event, question) %>
+```
+
+Now, you'll see a vote counter! Neat-o burrito.
 
 # Validations
 
