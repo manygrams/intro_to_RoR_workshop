@@ -323,7 +323,7 @@ has_many :votes
 Open up `app/controllers/votes_controller.rb` and make the file look like:
 ```ruby
 class VotesController < ApplicationController
-  before_action :load_question, :create_vote
+  before_action :authenticate_user!, :load_question, :create_vote
 
   def upvote
   end
