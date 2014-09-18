@@ -14,6 +14,7 @@
       Asked by: <%= question.user.email %>
       <%= link_to "Upvote (#{question.upvotes})", upvote_event_question_path(@event, question) %>
       <%= link_to "Downvote (#{question.downvotes})", downvote_event_question_path(@event, question) %>
+      Score: <%= question.score %>
     </li>
   <% end %>
 </ul>

@@ -126,7 +126,7 @@ Now, go to your root page, create an event, and create a couple test questions f
 
 At this point, we should clean up our application. We don't want people to be able to change or delete events once they are created, so we'll remove the edit, update, and destroy actions on the EventsController and disable the routes.
 
-To remove the actions from the EventsController, you simply delete the functions. Remove the following code from `app/controllers/events_controller.rb`:
+To remove the actions from the EventsController, you simply delete the methods. Remove the following code from `app/controllers/events_controller.rb`:
 ```ruby
 # GET /events/1/edit
 def edit
@@ -396,6 +396,42 @@ Finally, open up `app/views/events/show.html.erb` and modify the upvote/downvote
 ```
 
 Now, you'll see a vote counter! Neat-o burrito.
+
+## Ordering questions by score
+
+There are several different ways of ordering these questions, and we could provide a dropdown so the user could select this. Since we're short on time, I'll pick a score metric. I'm a Data Scientist at Shopify, so I love fancy metrics. One of my coworkers has an awesome [blog post](http://www.camdp.com/blogs/how-sort-comments-intelligently-reddit-and-hacker-) that describes a [Bayesian](http://en.wikipedia.org/wiki/Bayesian_statistics) way to rank things with upvotes / downvotes, so I'll use this. You can implement your own method if you are a [frequentist](http://xkcd.com/1132/)!
+
+Open up `app/models/question.rb` and add the method that determines the score (based on the blog post mentioned above) of a question:
+```ruby
+def score
+  a = upvotes + 1.0
+  b = downvotes + 1.0
+
+  (a / (a + b)) - 1.65 * Math.sqrt((a * b) / (((a + b) ** (a + b)) * (a + b + 1)))
+end
+```
+
+Then, we want to add a method on the `Question` class that ranks questions by this score function.
+```ruby
+def self.ranked
+  self.all.sort_by(&:score).reverse
+end
+```
+
+In the `EventsController`, we'll want to modify our existing method to get the ranked questions. Rails makes this easy. Open up `app/controllers/events_controller.rb`, and modify the `index` method to look like this:
+```ruby
+# GET /events/1
+def show
+  @questions = @event.questions.ranked
+end
+```
+
+Finally, we'll probably want to see the score of each question on the event page. Add the following to `app/views/events/show.html.erb` below the downvote link:
+```erb
+Score: <%= question.score %>
+```
+
+If you feel adventurous, feel free to modify the score function and see the impact it has on the sorting.
 
 # Validations
 

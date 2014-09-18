@@ -9,7 +9,7 @@ class EventsController < ApplicationController
 
   # GET /events/1
   def show
-    @questions = @event.questions
+    @questions = @event.questions.ranked
   end
 
   # GET /events/new
