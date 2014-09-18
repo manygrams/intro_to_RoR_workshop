@@ -32,7 +32,7 @@ class QuestionsController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def question_params
-      params.require(:question).permit(:question).merge(event_id: params[:event_id])
+      params.require(:question).permit(:question).merge(event_id: params[:event_id], user_id: current_user.id)
     end
 
     def set_event

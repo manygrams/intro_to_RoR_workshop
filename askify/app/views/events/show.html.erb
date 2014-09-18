@@ -8,7 +8,10 @@
 <ul>
   <% @questions.each do |question| %>
     <li>
-      Question: <%= question.question %>
+      <p>
+      	Question: "<%= question.question %>"
+      </p>
+      Asked by: <%= question.user.email %>
     </li>
   <% end %>
 </ul>

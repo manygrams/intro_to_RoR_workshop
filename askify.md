@@ -223,10 +223,12 @@ Now our app's code is much cleaner, and users can't modify existing events / que
 
 # Adding Users
 
+## Basic Setup
+
 Run the following commands in your terminal:
 ```bash
-rails generate devise:install
-rails generate devise User
+bundle exec rails generate devise:install
+bundle exec rails generate devise User
 bundle exec rake db:migrate
 ```
 
@@ -243,5 +245,55 @@ To add a sign-out link, open up `app/views/layout/application.html.erb` and add 
   <p>
     <%= link_to "Sign Out", destroy_user_session_path, method: :delete %>
   </p>
+<% end %>
+```
+
+## Making Events / Questions belong to Users
+
+Now that we require users to sign-in before asking questions or creating events, we should associate the users with their questions and events. We associated questions with events before, so you already have a bit of experience with this.
+
+Add the following to `app/models/event.rb` and `app/models/question.rb`:
+```ruby
+belongs_to :user
+```
+
+Now, add the following to `app/models/user.rb`:
+```ruby
+has_many :questions
+has_many :events
+```
+
+We'll need to add the `user_id` column to events and to questions, so that this association can be persisted in the database. Run the following commands in your terminal:
+```bash
+bundle exec rails g migration AddUserIDToQuestions user_id:integer
+bundle exec rails g migration AddUserIDToEvents user_id:integer
+bundle exec rake db:migrate
+```
+
+Now, we need to make sure new events / questions belong to the user that created them. To do this, we modify the event_params private method in `app/controllers/events_controller.rb` to look like this:
+```ruby
+# Only allow a trusted parameter "white list" through.
+def event_params
+  params.require(:event).permit(:name).merge(user_id: current_user.id)
+end
+```
+
+We'll do the same to the `question_params` method in `app/controllers/questions_controller.rb`:
+```ruby
+# Only allow a trusted parameter "white list" through.
+def question_params
+  params.require(:question).permit(:question).merge(event_id: params[:event_id], user_id: current_user.id)
+end
+```
+
+We want to ensure that questions are signed by the user that creates them. ActiveRecord associations makes this very easy. Open up `app/views/events/show.html.erb` and modify the loop that prints out questions to look like this:
+```ruby
+<% @questions.each do |question| %>
+  <li>
+    <p>
+      Question: "<%= question.question %>"
+    </p>
+    Asked by: <%= question.user.email %>
+  </li>
 <% end %>
 ```

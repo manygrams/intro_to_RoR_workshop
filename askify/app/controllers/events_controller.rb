@@ -36,6 +36,6 @@ class EventsController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def event_params
-      params.require(:event).permit(:name)
+      params.require(:event).permit(:name).merge(user_id: current_user.id)
     end
 end
